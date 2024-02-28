@@ -1,0 +1,43 @@
+version: '3'
+
+services:
+  chirpstack-ran-bridge:
+    image: everynethub/ran.routing.chirpstack.v4:EAP-6
+    restart: unless-stopped
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+
+      - CHIRPSTACK_API_GRPC_HOST=${CHIRPSTACK_API_GRPC_HOST:-chirpstack}
+      - CHIRPSTACK_API_GRPC_PORT=${CHIRPSTACK_API_GRPC_PORT:-8080}
+      - CHIRPSTACK_API_GRPC_SECURE=${CHIRPSTACK_API_GRPC_SECURE:-False}
+      - CHIRPSTACK_API_GRPC_CERT_PATH=${CHIRPSTACK_API_GRPC_CERT_PATH:-}
+      - CHIRPSTACK_API_TOKEN
+
+      - CHIRPSTACK_MQTT_SERVER_URI=${CHIRPSTACK_MQTT_SERVER_URI:-mqtt://mosquitto:1883}
+      - CHIRPSTACK_MQTT_TOPIC_PREFIX
+      - CHIRPSTACK_REGION
+
+      - CHIRPSTACK_MATCH_TAGS
+      - CHIRPSTACK_GATEWAY_ID
+      - CHIRPSTACK_TENANT_ID
+
+      - RAN_TOKEN
+      - RAN_API_URL
+
+      - SKIP_RAN_ORPHANED_DEVICES
+
+      - HEALTHCHECK_SERVER_HOST=${HEALTHCHECK_SERVER_HOST:-0.0.0.0}
+      - HEALTHCHECK_SERVER_PORT=${HEALTHCHECK_SERVER_PORT:-9090}
+
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: "100m"
+        max-file: "1"
+    # depends_on:
+    #   - chirpstack
+
+networks:
+  default: 
+    name: chirpstack
+    external: true
