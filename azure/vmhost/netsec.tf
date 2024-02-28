@@ -31,6 +31,19 @@ resource "azurerm_network_security_rule" "https" {
   resource_group_name         = azurerm_resource_group.vm.name
   network_security_group_name = azurerm_network_security_group.sg.name
 }
+resource "azurerm_network_security_rule" "http8080" {
+  priority                    = 110
+  name                        = "http8080-in"
+  source_address_prefix       = "*"
+  direction                   = "Inbound"
+  access                      = "Allow"
+  protocol                    = "Tcp"
+  source_port_range           = "*"
+  destination_port_range      = "8080"
+  destination_address_prefix  = azurerm_network_interface.nic.private_ip_address
+  resource_group_name         = azurerm_resource_group.vm.name
+  network_security_group_name = azurerm_network_security_group.sg.name
+}
 
 resource "azurerm_network_security_rule" "ssh_src1" {
   priority                    = 201
