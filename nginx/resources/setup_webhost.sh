@@ -37,21 +37,21 @@ if echo "$output" | grep -q "Certificate Name: ${NGINX_FQDN}"; then
 	sed -e "s/@{FQDN}/${NGINX_FQDN}/g" /root/resources/nginx_app443.conf > /etc/nginx/conf.d/app443.conf || exit 5
 fi
 
-# # CERTBOT_TEST=true
-# if [[ -z "${CERTBOT_TEST}" ]]; then
-# 	echo "Certbot Do-It"
-# 	certbot certonly --agree-tos --email "${CERTBOT_EMAIL}" --non-interactive --domains "$CERTBOT_DOMAINS" --nginx --rsa-key-size 4096 || exit 6
-# 	# certbot actually launched Nginx. The simple hack is to stop it; then launch 
-# 	# it again after we've edited the config files.
-# 	/usr/sbin/nginx -s stop && echo "NGINX Stopped after Certbot Issued Cert successfully"
+# CERTBOT_TEST=true
+if [[ -z "${CERTBOT_TEST}" ]]; then
+	echo "Certbot Do-It"
+	certbot certonly --agree-tos --email "${CERTBOT_EMAIL}" --non-interactive --domains "$CERTBOT_DOMAINS" --nginx --rsa-key-size 4096 || exit 6
+	# certbot actually launched Nginx. The simple hack is to stop it; then launch 
+	# it again after we've edited the config files.
+	/usr/sbin/nginx -s stop && echo "NGINX Stopped after Certbot Issued Cert successfully"
 
-# else
-# 	# set for dry-run
-# 	echo "Certbot Dry-Run"
-# 	certbot certonly --dry-run --agree-tos --email "${CERTBOT_EMAIL}" --non-interactive --domains "$CERTBOT_DOMAINS" --nginx --rsa-key-size 4096 || exit 7
+else
+	# set for dry-run
+	echo "Certbot Dry-Run"
+	certbot certonly --dry-run --agree-tos --email "${CERTBOT_EMAIL}" --non-interactive --domains "$CERTBOT_DOMAINS" --nginx --rsa-key-size 4096 || exit 7
 
-# 	# certbot actually launched Nginx. The simple hack is to stop it; then launch 
-# 	# it again after we've edited the config files.
-# 	/usr/sbin/nginx -s stop && echo "stopped successfully"
-# fi
+	# certbot actually launched Nginx. The simple hack is to stop it; then launch 
+	# it again after we've edited the config files.
+	/usr/sbin/nginx -s stop && echo "stopped successfully"
+fi
 
