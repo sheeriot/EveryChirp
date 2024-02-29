@@ -8,5 +8,5 @@ COPY resources /root/resources/
 RUN mv /etc/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf.bak
 
 # provide the startup script to setup nginx
-RUN cp /root/resources/setup_webhost.sh /docker-entrypoint.d
-RUN chmod +x /docker-entrypoint.d/setup_webhost.sh
+RUN cp /root/resources/setup_webhost.sh /docker-entrypoint.d/40-setup_webhost.sh
+RUN chmod +x /docker-entrypoint.d/40-setup_webhost.sh
