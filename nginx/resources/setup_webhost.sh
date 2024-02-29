@@ -34,19 +34,17 @@ sed -e "s/@{FQDN}/${NGINX_FQDN}/g" /root/resources/nginx_app80.conf > /etc/nginx
 # CERTBOT_TEST=true
 if [[ -z "${CERTBOT_TEST}" ]]; then
 	echo "Certbot Do-It"
-	certbot certonly --agree-tos --email "${CERTBOT_EMAIL}" --non-interactive --domains "$CERTBOT_DOMAINS" --nginx --rsa-key-size 4096 || exit 6
+	certbot certonly --agree-tos --email "${CERTBOT_EMAIL}" --non-interactive --domains "$CERTBOT_DOMAINS" --nginx --rsa-key-size 4096 || exit 5
 
+	# now add HTTPS only if the certificate is found
+	output=$(certbot certificates --cert-name ${NGINX_FQDN})
+	if echo "$output" | grep -q "Certificate Name: ${NGINX_FQDN}"; then
+		echo "Creating HTTPS config"
+		sed -e "s/@{FQDN}/${NGINX_FQDN}/g" /root/resources/nginx_app443.conf > /etc/nginx/conf.d/app443.conf || exit 6
+	fi
 else
 	# set for dry-run
 	echo "Certbot Dry-Run"
-	certbot certonly --dry-run --agree-tos --email "${CERTBOT_EMAIL}" --non-interactive --domains "$CERTBOT_DOMAINS" --nginx --rsa-key-size 4096 || exit 7
+	certbot certonly --dry-run --agree-tos --email "${CERTBOT_EMAIL}" --non-interactive --domains "$CERTBOT_DOMAINS" --nginx --rsa-key-size 4096 || exit 8
 fi
 
-# now add HTTPS only if the certificate is found
-output=$(certbot certificates --cert-name ${NGINX_FQDN})
-if echo "$output" | grep -q "Certificate Name: ${NGINX_FQDN}"; then
-	echo "creating https host"
-	sed -e "s/@{FQDN}/${NGINX_FQDN}/g" /root/resources/nginx_app443.conf > /etc/nginx/conf.d/app443.conf || exit 5
-fi
-
-# /usr/sbin/nginx -s reload && echo "NGINX Config Reload after Certbot Issued Cert successfully"

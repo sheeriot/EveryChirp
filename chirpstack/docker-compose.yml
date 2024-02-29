@@ -10,7 +10,7 @@ x-logging:
 services:
 
   chirpstack:
-    image: chirpstack/chirpstack:4.6
+    image: chirpstack/chirpstack:4
     command: -c /etc/chirpstack
     restart: unless-stopped
     volumes:
@@ -29,18 +29,19 @@ services:
     logging: *default-logging
 
   chirpstack-gateway-bridge:
-    image: chirpstack/chirpstack-gateway-bridge:4.0.10
+    image: chirpstack/chirpstack-gateway-bridge:4
+    restart: unless-stopped
     ports:
       - 1700:1700/udp
     volumes:
       - ./docker-data/chirpstack-gateway-bridge:/etc/chirpstack-gateway-bridge
-    restart: unless-stopped
     depends_on:
       - mosquitto
     logging: *default-logging
 
   postgresql:
-    image: postgres:10.20-alpine
+    image: postgres:14-alpine
+    restart: unless-stopped
     ports:
       - 5432:5432
     environment:
@@ -49,23 +50,23 @@ services:
     volumes:
       - ./docker-data/postgresql/initdb:/docker-entrypoint-initdb.d
       - postgresqldata:/var/lib/postgresql/data
-    restart: unless-stopped
     logging: *default-logging
 
   redis:
-    image: redis:6-alpine
+    image: redis:7-alpine
+    command: redis-server --save 300 1 --save 60 100 --appendonly no
+    restart: unless-stopped
     volumes:
       - redisdata:/data
-    restart: unless-stopped
     logging: *default-logging
 
   mosquitto:
     image: eclipse-mosquitto:2
+    restart: unless-stopped
     ports:
       - 1883:1883
     volumes:
       - ./docker-data/eclipse-mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
-    restart: unless-stopped
     logging: *default-logging
 
 volumes:
