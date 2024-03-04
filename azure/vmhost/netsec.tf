@@ -34,7 +34,7 @@ resource "azurerm_network_security_rule" "https" {
 resource "azurerm_network_security_rule" "http8080" {
   priority                    = 110
   name                        = "http8080-in"
-  source_address_prefix       = "*"
+  source_address_prefix       = var.ssh_src1
   direction                   = "Inbound"
   access                      = "Allow"
   protocol                    = "Tcp"
