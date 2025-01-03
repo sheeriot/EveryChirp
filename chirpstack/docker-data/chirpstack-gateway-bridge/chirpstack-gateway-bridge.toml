@@ -1,6 +1,16 @@
 # See https://www.chirpstack.io/docs/chirpstack-gateway-bridge/configuration.html for a full
 # configuration example and documentation.
 
+[general]
+# debug=5, info=4, warning=3, error=2, fatal=1, panic=0
+log_level=4
+
+# Log in JSON format.
+log_json=true
+
+[backend]
+type="basic_station"
+
 [integration.mqtt.auth.generic]
 servers=["tcp://mosquitto:1883"]
 username=""
@@ -10,3 +20,9 @@ password=""
 event_topic_template="+/gateway/{{ .GatewayID }}/event/{{ .EventType }}"
 state_topic_template="+/gateway/{{ .GatewayID }}/state/{{ .StateType }}"
 command_topic_template="+/gateway/{{ .GatewayID }}/command/#"
+
+[backend.basic_station]
+tls_cert="/etc/chirpstack-gateway-bridge/certs/basicstation.pem"
+tls_key="/etc/chirpstack-gateway-bridge/certs/basicstation-key.pem"
+ca_cert="/etc/chirpstack-gateway-bridge/certs/ca.pem"
+

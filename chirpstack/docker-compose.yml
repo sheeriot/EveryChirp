@@ -1,5 +1,3 @@
-version: '3'
-
 x-logging:
   &default-logging
   driver: 'json-file'
@@ -15,6 +13,8 @@ services:
     restart: unless-stopped
     volumes:
       - ./docker-data/chirpstack:/etc/chirpstack
+      - ./docker-data/certs/ca.pem:/etc/chirpstack/certs/ca.pem:ro
+      - ./docker-data/certs/ca-key.pem:/etc/chirpstack/certs/ca-key.pem:ro
       # - ./lorawan-devices:/opt/lorawan-devices
     depends_on:
       - postgresql
@@ -28,16 +28,33 @@ services:
       - 8080:8080
     logging: *default-logging
 
-  chirpstack-gateway-bridge:
+  # chirpstack-gateway-bridge:
+  #   image: chirpstack/chirpstack-gateway-bridge:4
+  #   restart: unless-stopped
+  #   ports:
+  #     - 3001:3001
+  #   volumes:
+  #     - ./docker-data/chirpstack-gateway-bridge:/etc/chirpstack-gateway-bridge
+  #     - ./docker-data/certs/ca.pem:/etc/chirpstack-gateway-bridge/certs/ca.pem:ro
+  #     - ./docker-data/certs/basicstation.pem:/etc/chirpstack-gateway-bridge/certs/basicstation.pem:ro
+  #     - ./docker-data/certs/basicstation-key.pem:/etc/chirpstack-gateway-bridge/certs/basicstation-key.pem:ro
+  #   depends_on:
+  #     - mosquitto
+  #   logging: *default-logging
+
+  chirpstack-gateway-bridge-basicstation:
     image: chirpstack/chirpstack-gateway-bridge:4
     restart: unless-stopped
+    command: -c /etc/chirpstack-gateway-bridge/chirpstack-gateway-bridge-basicstation-us915_0.toml
     ports:
-      - 1700:1700/udp
+      - 3001:3001
     volumes:
-      - ./docker-data/chirpstack-gateway-bridge:/etc/chirpstack-gateway-bridge
+      - ./docker-data/chirpstack-gateway-bridge:/etc/chirpstack-gateway-bridge:ro
+      - ./docker-data/certs/ca.pem:/etc/chirpstack-gateway-bridge/certs/ca.pem:ro
+      - ./docker-data/certs/basicstation.pem:/etc/chirpstack-gateway-bridge/certs/basicstation.pem:ro
+      - ./docker-data/certs/basicstation-key.pem:/etc/chirpstack-gateway-bridge/certs/basicstation-key.pem:ro
     depends_on:
       - mosquitto
-    logging: *default-logging
 
   postgresql:
     image: postgres:14-alpine
@@ -67,6 +84,8 @@ services:
       - 1883:1883
     volumes:
       - ./docker-data/eclipse-mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ./docker-data/eclipse-mosquitto/certs:/etc/mosquitto/certs
+      - ./docker-data/eclipse-mosquitto/acl:/etc/mosquitto/acl
     logging: *default-logging
 
 volumes:
